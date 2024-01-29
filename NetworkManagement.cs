@@ -34,8 +34,8 @@ namespace ForceTeleportAll
         public static LethalNetworkVariable<AudioClip> ShipTeleporterSpinInverseSFX = new LethalNetworkVariable<AudioClip>(identifier: "ShipTeleporterSpinInverseSFX");
         [PublicNetworkVariable]
         public static LethalNetworkVariable<AudioClip> ShipTeleporterBeamSFX = new LethalNetworkVariable<AudioClip>(identifier: "ShipTeleporterBeamSFX");
-        [PublicNetworkVariable]
-        public static LethalNetworkVariable<string> MTResult = new LethalNetworkVariable<string>(identifier: "MTResult");
+        //[PublicNetworkVariable]
+        //public static LethalNetworkVariable<string> MTResult = new LethalNetworkVariable<string>(identifier: "MTResult");
 
         public static LethalNetworkVariable<bool> configHostOnly = new LethalNetworkVariable<bool>(identifier: "configHostOnly");
         public static LethalNetworkVariable<bool> configHostIncluded = new LethalNetworkVariable<bool>(identifier: "configHostIncluded");
@@ -74,67 +74,19 @@ namespace ForceTeleportAll
 
         public static void MassTeleport(ulong clientId) // NETWORK send teleport instructions to each player
         {
+            int _teleportCount = 0;
             LoggerInstance.LogDebug("MassTeleport Start");
             LoggerInstance.LogDebug($"{GameNetworkManager.Instance.localPlayerController} should only get this");
             PlayerControllerB terminalUser = clientId.GetPlayerController();
             LoggerInstance.LogDebug($"{terminalUser.playerUsername} used the teleportall command");
-            ShipTeleporter regular = TeleportHandler.GetTeleporter();
-            ShipTeleporter inverse = TeleportHandler.GetTeleporter(selectInverse: true);
-
-            int _teleportCount = -1;
-
-            LoggerInstance.LogDebug("Got teleporters");
-            if (!StartOfRound.Instance.shipHasLanded)
-            {
-                LoggerInstance.LogDebug("Ship isnt landed...");
-                MTResult.Value = "Cannot use this command until ship is landed.";
-                return;
-            }
-            LoggerInstance.LogDebug("Pass Ship has landed");
-            if (regular is null && configRequireTeleporter.Value)
-            {
-                LoggerInstance.LogDebug("No regular teleporter owned");
-                MTResult.Value = "A teleporter is required to use this command...";
-                return;
-            }
-            LoggerInstance.LogDebug($"Pass teleporter check");
-            if (inverse is null && configRequireInverse.Value)
-            {
-                LoggerInstance.LogDebug("No inverse teleporter owned");
-                MTResult.Value = "An inverse teleporter is required to use this command...";
-                return;
-            }
-            LoggerInstance.LogDebug($"Pass inverse check");
-            if (!clientId.GetPlayerController().isHostPlayerObject && configHostOnly.Value)
-            {
-                LoggerInstance.LogDebug("The host didnt use the command.");
-                MTResult.Value = "Only the server owner is allowed to run this command...";
-                return;
-            }
-
-            //LoggerInstance.LogDebug("Pass Host check");
-            if (inverse is object)
-            {
-                //LoggerInstance.LogDebug("Inverse is not null");
-                if (inverse.cooldownAmount != 0 && configRespectCooldown.Value) // CHECK FOR NULL
-                {
-                    LoggerInstance.LogDebug("Teleporter on cooldown.");
-                    MTResult.Value = $"The Inverse Teleporter is on cooldown. {inverse.cooldownAmount} seconds until this command can be used...";
-                    return;
-                }
-            }
-            //LoggerInstance.LogDebug($"Passed cooldown check");
-            LoggerInstance.LogDebug("Checked for config settings, starting teleports");
-            LoggerInstance.LogDebug($"{StartOfRound.Instance.allPlayerScripts.Length} Players to teleport");
 
             LoggerInstance.LogDebug("Starting loop");
 
             for (int j = 0; j < StartOfRound.Instance.allPlayerObjects.Length; j++)
             {
-                //LoggerInstance.LogDebug("In for loop, getting player...");
                 PlayerControllerB _player = StartOfRound.Instance.allPlayerScripts[j];
+                if (!_player.isPlayerControlled) { continue; }
                 LoggerInstance.LogDebug($"Attempting teleport {_player.playerUsername}, steamId: {_player.playerSteamId}");
-
                 if (RoundManager.Instance.insideAINodes.Length != 0)
                 {
                     LoggerInstance.LogDebug($"insideAINodes = {RoundManager.Instance.insideAINodes.Length}");
@@ -149,8 +101,6 @@ namespace ForceTeleportAll
             }
 
             LoggerInstance.LogDebug($"Teleported {_teleportCount} players...");
-            MTResult.Value = $"Teleporting {_teleportCount} players...";
-            return;
         }
 
         public static void GetAudioClips() // Possible solution to errors: get spot in array after resources are loaded?

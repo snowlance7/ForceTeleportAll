@@ -38,7 +38,6 @@ namespace ForceTeleportAll
                 NetworkManagement.configRespectCooldown.Value = ForceTeleportAllBase.configRespectCooldown.Value;
                 LoggerInstance.LogDebug($"SERVER: Config values set to {NetworkManagement.configHostOnly.Value}, {NetworkManagement.configHostIncluded.Value}, {NetworkManagement.configUserIncluded.Value}, {NetworkManagement.configRequireTeleporter.Value}, {NetworkManagement.configRequireInverse.Value}, {NetworkManagement.configRespectCooldown.Value}");
 
-                NetworkManagement.Init();
                 NetworkManagement.GetAudioClips();
             }
         }
