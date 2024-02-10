@@ -66,8 +66,8 @@ namespace ForceTeleportAll
         {
             ulong playerId = GameNetworkManager.Instance.localPlayerController.actualClientId; // FIX HERE gets host object and not current player
             LoggerInstance.LogDebug($"{playerId} recieved teleportall command from server");
-            GameObject gameObject = new GameObject();
-            teleportHandler = gameObject.AddComponent<TeleportHandler>();
+            //GameObject gameObject = new GameObject();
+            teleportHandler = new TeleportHandler();// gameObject.AddComponent<TeleportHandler>();
             teleportHandler.SetTeleportData(playerId);
             teleportHandler.StartTeleport();
         }
