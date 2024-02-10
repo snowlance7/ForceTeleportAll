@@ -36,7 +36,8 @@ namespace ForceTeleportAll
                 NetworkManagement.configRequireTeleporter.Value = ForceTeleportAllBase.configRequireTeleporter.Value;
                 NetworkManagement.configRequireInverse.Value = ForceTeleportAllBase.configRequireInverse.Value;
                 NetworkManagement.configRespectCooldown.Value = ForceTeleportAllBase.configRespectCooldown.Value;
-                LoggerInstance.LogDebug($"SERVER: Config values set to {NetworkManagement.configHostOnly.Value}, {NetworkManagement.configHostIncluded.Value}, {NetworkManagement.configUserIncluded.Value}, {NetworkManagement.configRequireTeleporter.Value}, {NetworkManagement.configRequireInverse.Value}, {NetworkManagement.configRespectCooldown.Value}");
+                NetworkManagement.configAltMethod.Value = ForceTeleportAllBase.configAltMethod.Value;
+                LoggerInstance.LogDebug($"SERVER: Config values set to {NetworkManagement.configHostOnly.Value}, {NetworkManagement.configHostIncluded.Value}, {NetworkManagement.configUserIncluded.Value}, {NetworkManagement.configRequireTeleporter.Value}, {NetworkManagement.configRequireInverse.Value}, {NetworkManagement.configRespectCooldown.Value}, {NetworkManagement.configAltMethod.Value}");
 
                 NetworkManagement.GetAudioClips();
             }

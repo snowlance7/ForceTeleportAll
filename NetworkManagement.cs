@@ -43,7 +43,7 @@ namespace ForceTeleportAll
         public static LethalNetworkVariable<bool> configRequireTeleporter = new LethalNetworkVariable<bool>(identifier: "configRequireTeleporter");
         public static LethalNetworkVariable<bool> configRequireInverse = new LethalNetworkVariable<bool>(identifier: "configRequireInverse");
         public static LethalNetworkVariable<bool> configRespectCooldown = new LethalNetworkVariable<bool>(identifier: "configRespectCooldown");
-
+        public static LethalNetworkVariable<bool> configAltMethod = new LethalNetworkVariable<bool>(identifier: "configAltMethod");
 
         public static TeleportHandler teleportHandler;
 
@@ -74,6 +74,22 @@ namespace ForceTeleportAll
 
         public static void MassTeleport(ulong clientId) // NETWORK send teleport instructions to each player
         {
+            if (configAltMethod.Value)
+            {
+                ShipTeleporter regular = TeleportHandler.GetTeleporter();
+                ShipTeleporter inverse = TeleportHandler.GetTeleporter(selectInverse: true);
+
+                int count = StartOfRound.Instance.allPlayerScripts.Length;
+                Terminal terminal = new Terminal();
+
+                for (int i = 0; i < count; i++)
+                {
+                    //StartOfRound.Instance.mapScreen.radarTargets[0]; // TODO: Get radar targets and teleport them
+                }
+
+                regular.PressTeleportButtonOnLocalClient();
+            }
+
             int _teleportCount = 0;
             LoggerInstance.LogDebug("MassTeleport Start");
             LoggerInstance.LogDebug($"{GameNetworkManager.Instance.localPlayerController} should only get this");

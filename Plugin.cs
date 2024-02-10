@@ -29,7 +29,8 @@ namespace ForceTeleportAll
         public static ConfigEntry<bool> configRequireTeleporter;
         public static ConfigEntry<bool> configRequireInverse;
         public static ConfigEntry<bool> configRespectCooldown;
-        
+        public static ConfigEntry<bool> configAltMethod;
+
         public static ManualLogSource LoggerInstance {  get; private set; }
 
         public static ForceTeleportAllBase PluginInstance;
@@ -48,9 +49,10 @@ namespace ForceTeleportAll
             configHostOnly = PluginInstance.Config.Bind("Host Settings", "Host only?", false, "If this is left true, only the host will be able to run the command.");
             configHostIncluded = PluginInstance.Config.Bind("Host Settings", "Should Host Teleport?", true, "If this is off, the command will teleport everyone EXCEPT for the host.");
             configUserIncluded = PluginInstance.Config.Bind("Teleporter Settings", "Should Terminal User Teleport?", true, "If set to false, will not teleport whoever used the command.");
-            configRequireTeleporter = PluginInstance.Config.Bind("Teleporter Settings", "Require Teleporter?", false, "If this is true, a teleporter needs to be bought first before you can use the command.");
-            configRequireInverse = PluginInstance.Config.Bind("Teleporter Settings", "Require Inverse Teleporter?", false, "If this is true, an inverse teleporter needs to be bought first before you can use the command.");
+            configRequireTeleporter = PluginInstance.Config.Bind("Teleporter Settings", "Require Teleporter?", true, "If this is true, a teleporter needs to be bought first before you can use the command.");
+            configRequireInverse = PluginInstance.Config.Bind("Teleporter Settings", "Require Inverse Teleporter?", true, "If this is true, an inverse teleporter needs to be bought first before you can use the command.");
             configRespectCooldown = PluginInstance.Config.Bind("Teleporter Settings", "Respect Cooldown?", false, "If left as false, this will run the command even if the teleporters are on cooldown.");
+            configAltMethod = PluginInstance.Config.Bind("Alternate Method", "Use Alt Method?", true, "If this is true, the command will use the alternative method of teleporting players.");
 
             harmony.PatchAll();
 
@@ -84,24 +86,25 @@ namespace ForceTeleportAll
                 return false;
             }
             logger.LogDebug("Pass Ship has landed");
-            if (regular is null && configRequireTeleporter.Value)
+            if (regular is null && (configRequireTeleporter.Value || configAltMethod.Value))
             {
                 logger.LogDebug("No regular teleporter owned");
                 MTResult = "A teleporter is required to use this command...";
                 return false;
             }
             logger.LogDebug($"Pass teleporter check");
-            if (inverse is null && configRequireInverse.Value)
+            if (inverse is null && (configRequireInverse.Value || configAltMethod.Value))
             {
-                if (inverse.cooldownAmount != 0 && configRespectCooldown.Value) // CHECK FOR NULL
-                {
-                    logger.LogDebug("Teleporter on cooldown.");
-                    MTResult = $"The Inverse Teleporter is on cooldown. {inverse.cooldownAmount} seconds until this command can be used...";
-                    return false;
-                }
+                
 
                 logger.LogDebug("No inverse teleporter owned");
                 MTResult = "An inverse teleporter is required to use this command...";
+                return false;
+            }
+            else if (inverse.cooldownAmount != 0 && configRespectCooldown.Value) // CHECK FOR NULL
+            {
+                logger.LogDebug("Teleporter on cooldown.");
+                MTResult = $"The Inverse Teleporter is on cooldown. {inverse.cooldownAmount} seconds until this command can be used...";
                 return false;
             }
             logger.LogDebug($"Pass inverse check");

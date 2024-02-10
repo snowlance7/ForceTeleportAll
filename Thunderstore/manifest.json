@@ -1,6 +1,6 @@
 ﻿{
   "name": "ForceTeleportAll",
-  "version_number": "1.0.3",
+  "version_number": "1.1.0",
   "website_url": "https://github.com/snowlance7/ForceTeleportAll",
   "description": "Forcefully teleport everyone into the facility so they can get back to work with just a terminal command! :)",
   "dependencies": [
