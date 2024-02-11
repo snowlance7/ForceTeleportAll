@@ -27,6 +27,8 @@ namespace ForceTeleportAll
             }
         }
 
+        private static ShipTeleporter shipTeleporterInstance = new ShipTeleporter();
+
         public static LethalServerEvent serverEvent = new LethalServerEvent(identifier: "FTEevent");
         public static LethalClientEvent clientEvent = new LethalClientEvent(identifier: "FTEevent");
 
@@ -36,6 +38,7 @@ namespace ForceTeleportAll
         public static LethalNetworkVariable<AudioClip> ShipTeleporterBeamSFX = new LethalNetworkVariable<AudioClip>(identifier: "ShipTeleporterBeamSFX");
         //[PublicNetworkVariable]
         //public static LethalNetworkVariable<string> MTResult = new LethalNetworkVariable<string>(identifier: "MTResult");
+        //public static LethalNetworkVariable<ShipTeleporter> shipTeleporterInverse = shipTeleporterInstance.GetNetworkVariable<ShipTeleporter>("shipTeleporterInverse"); // TODO: get this working to use the rpc method
 
         public static LethalNetworkVariable<bool> configHostOnly = new LethalNetworkVariable<bool>(identifier: "configHostOnly");
         public static LethalNetworkVariable<bool> configHostIncluded = new LethalNetworkVariable<bool>(identifier: "configHostIncluded");
@@ -74,21 +77,21 @@ namespace ForceTeleportAll
 
         public static void MassTeleport(ulong clientId) // NETWORK send teleport instructions to each player
         {
-            if (configAltMethod.Value)
+            /*if (configAltMethod.Value)                                                                              // TODO TEMP ALT METHOD UNTIL I GET IT WORKING
             {
-                ShipTeleporter regular = TeleportHandler.GetTeleporter();
-                ShipTeleporter inverse = TeleportHandler.GetTeleporter(selectInverse: true);
-
-                int count = StartOfRound.Instance.allPlayerScripts.Length;
+                var players = StartOfRound.Instance.allPlayerScripts;
                 Terminal terminal = new Terminal();
 
-                for (int i = 0; i < count; i++)
+                foreach (var player in players)
                 {
-                    //StartOfRound.Instance.mapScreen.radarTargets[0]; // TODO: Get radar targets and teleport them
+                    inverse.TeleportPlayerOutServerRpc(player, );
                 }
 
-                regular.PressTeleportButtonOnLocalClient();
-            }
+                //StartOfRound.Instance.mapScreen.radarTargets[0]; // TODO: Get radar targets and teleport them
+
+                //regular.PressTeleportButtonOnLocalClient();
+            }*/
+
 
             int _teleportCount = 0;
             LoggerInstance.LogDebug("MassTeleport Start");
@@ -98,7 +101,7 @@ namespace ForceTeleportAll
 
             LoggerInstance.LogDebug("Starting loop");
 
-            for (int j = 0; j < StartOfRound.Instance.allPlayerObjects.Length; j++)
+            for (int j = 0; j < StartOfRound.Instance.allPlayerObjects.Length; j++) // CHANGE THIS
             {
                 PlayerControllerB _player = StartOfRound.Instance.allPlayerScripts[j];
                 if (!_player.isPlayerControlled) { continue; }

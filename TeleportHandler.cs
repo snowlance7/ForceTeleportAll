@@ -64,6 +64,7 @@ namespace ForceTeleportAll
         }
         private IEnumerator InverseTeleportPlayer()
         {
+            ShipTeleporter inverse = GetTeleporter(selectInverse: true);
             //LoggerInstance.LogDebug("Inside InverseTeleportPlayer");
             //LoggerInstance.LogDebug("TEST");
             Vector3 _teleportPos = GetRandomPosition();
@@ -79,7 +80,8 @@ namespace ForceTeleportAll
                 yield return new WaitForSeconds(4.5f);
                 PlayAudioOnPlayerLocal(true);
                 yield return new WaitForSeconds(0.1f);
-                PlayerToTeleport.TeleportPlayer(_teleportPos);
+                //PlayerToTeleport.TeleportPlayer(_teleportPos);
+                //NetworkManagement.shipTeleporterInverse.Value.TeleportPlayerOutServerRpc((int)PlayerToTeleport.playerClientId, _teleportPos); // TODO: Get this working to use the rpc method
                 yield return new WaitForSeconds(0.1f);
                 PlayAudioOnPlayerLocal(true);
                 //StartCoroutine(TeleportDebounce());
