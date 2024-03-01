@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using GameNetcodeStuff;
-using JetBrains.Annotations;
 using LethalNetworkAPI;
+using System.Linq;
 using UnityEngine;
-using ForceTeleportAll;
-using System.Diagnostics;
-using BepInEx.Configuration;
 
 namespace ForceTeleportAll
 {

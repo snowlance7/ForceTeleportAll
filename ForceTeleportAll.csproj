@@ -78,7 +78,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Patches\ManualCameraRendererPatch.cs" />
     <Compile Include="Patches\ShipTeleporterPatch.cs" />
     <Compile Include="TeleportHandler.cs" />
     <Compile Include="NetworkManagement.cs" />

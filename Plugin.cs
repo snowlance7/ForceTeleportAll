@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine;
+using System.Globalization;
+using System.Collections;
 
 
 namespace ForceTeleportAll
@@ -52,8 +55,8 @@ namespace ForceTeleportAll
             configHostOnly = PluginInstance.Config.Bind("Host Settings", "Host only?", false, "If this is left true, only the host will be able to run the command.");
             configHostIncluded = PluginInstance.Config.Bind("Host Settings", "Should Host Teleport?", true, "If this is off, the command will teleport everyone EXCEPT for the host.");
             configUserIncluded = PluginInstance.Config.Bind("Teleporter Settings", "Should Terminal User Teleport?", true, "If set to false, will not teleport whoever used the command.");
-            configRequireTeleporter = PluginInstance.Config.Bind("Teleporter Settings", "Require Teleporter?", true, "If this is true, a teleporter needs to be bought first before you can use the command.");
-            configRequireInverse = PluginInstance.Config.Bind("Teleporter Settings", "Require Inverse Teleporter?", true, "If this is true, an inverse teleporter needs to be bought first before you can use the command.");
+            configRequireTeleporter = PluginInstance.Config.Bind("Teleporter Settings", "Require Teleporter?", false, "If this is true, a teleporter needs to be bought first before you can use the command.");
+            configRequireInverse = PluginInstance.Config.Bind("Teleporter Settings", "Require Inverse Teleporter?", false, "If this is true, an inverse teleporter needs to be bought first before you can use the command.");
             configRespectCooldown = PluginInstance.Config.Bind("Teleporter Settings", "Respect Cooldown?", false, "If left as false, this will run the command even if the teleporters are on cooldown.");
             configAltMethod = PluginInstance.Config.Bind("Alternate Method", "Use Alt Method?", true, "A common issue im trying to find a solution for is the graphical bugs whenever you teleport everyone inside. This uses a temporary alternate method to teleport everyone inside for now.\nREQUIRES BOTH TELEPORTERS STACKED ON TOP OF EACH OTHER.");
 
@@ -116,8 +119,11 @@ namespace ForceTeleportAll
             if (NetworkManagement.configAltMethod.Value)
             {
                 logger.LogDebug("Using Alt Method...");
-                MTResult = "Using alternative teleport method, make sure teleporters are on top of each other for this to work...";
-                AltMassTeleport();
+                MTResult = $"Teleporting {StartOfRound.Instance.allPlayerScripts.Where(p => p.isPlayerControlled).Count()}...\n(Make sure teleporters are on top of each other for this to work)";
+
+                StartCoroutine(AltMassTeleport());
+                //TeleportHandler.AltMassTeleport();
+                //AltMassTeleport();
                 return false;
             }
 
@@ -125,19 +131,52 @@ namespace ForceTeleportAll
             return true;
         }
 
-        private void AltMassTeleport()
+        public IEnumerator AltMassTeleport()
         {
-            throw new NotImplementedException();
-
-            if (configAltMethod.Value)                                                                              // TODO TEMP ALT METHOD UNTIL I GET IT WORKING
+            if (NetworkManagement.configAltMethod.Value)                                                                              // TODO TEMP ALT METHOD UNTIL I GET IT WORKING
             {
-                LoggerInstance.LogDebug($"{FindObjectsOfType<ManualCameraRenderer>().Length} cameras found? TEMP DEBUG");
-                ManualCameraRenderer manualCameraRenderer = FindObjectsOfType<ManualCameraRenderer>().FirstOrDefault();
+                //[Debug: Force Teleport Everyone] Found camera SecurityCamera
+                //[Debug: Force Teleport Everyone] Found camera CameraMonitorScript
+                //[Debug: Force Teleport Everyone] Found camera ShipCamera
+                ShipTeleporter inverse = TeleportHandler.GetTeleporter(selectInverse: true);
+                ShipTeleporter regular = TeleportHandler.GetTeleporter();
+                inverse.cooldownAmount = 0;
+                ManualCameraRenderer camera = FindObjectsOfType<ManualCameraRenderer>().Where(x => x.name == "CameraMonitorScript").First();
 
-                // TODO: Get radar targets and teleport them
+                inverse.PressTeleportButtonOnLocalClient();
+                yield return new WaitForSeconds(4f);
 
-                //regular.PressTeleportButtonOnLocalClient();
+
+                for (int i = 0; i < camera.radarTargets.Count; i++)
+                {
+                    regular.cooldownAmount = 0;
+                    PlayerControllerB player = camera.targetedPlayer;
+
+                    LoggerInstance.LogDebug($"Attempting teleport {player.playerUsername}, steamId: {player.playerSteamId}");
+                    if (RoundManager.Instance.insideAINodes.Length != 0)
+                    {
+                        LoggerInstance.LogDebug($"insideAINodes = {RoundManager.Instance.insideAINodes.Length}");
+                        if (player.isHostPlayerObject && !configHostIncluded.Value) { continue; }
+                        LoggerInstance.LogDebug("Pass host check in for loop");
+                        if (player.inTerminalMenu && !configUserIncluded.Value) { continue; }
+                        LoggerInstance.LogDebug("Pass userIncluded check in for loop");
+
+                        regular.PressTeleportButtonOnLocalClient();  // ERROR HERE?
+
+                        //StartCoroutine(AltTeleportPlayer());
+                        camera.SwitchCameraView();
+                    }
+                }
+
+                yield return new WaitForSeconds(4.5f);
+
+                inverse.PressTeleportButtonOnLocalClient();
             }
         }
+
+        /*private IEnumerator AltTeleportPlayer()
+        {
+            
+        }*/
     }
 }

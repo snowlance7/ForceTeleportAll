@@ -1,15 +1,10 @@
-﻿using GameNetcodeStuff;
+﻿using BepInEx.Logging;
+using GameNetcodeStuff;
+using LethalNetworkAPI;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using BepInEx.Logging;
-using JetBrains.Annotations;
-using Object = UnityEngine.Object;
-using LethalNetworkAPI;
 
 namespace ForceTeleportAll
 {
@@ -35,6 +30,19 @@ namespace ForceTeleportAll
             LoggerInstance.LogDebug($"Teleport position set to {_position}");
             return _position;
         }
+
+        /*public static void AltMassTeleport()
+        {
+            if (NetworkManagement.configAltMethod.Value)                                                                              // TODO TEMP ALT METHOD UNTIL I GET IT WORKING
+            {
+                LoggerInstance.LogDebug($"{FindObjectsOfType<ManualCameraRenderer>().Length} cameras found? TEMP DEBUG");
+                ManualCameraRenderer manualCameraRenderer = FindObjectsOfType<ManualCameraRenderer>().FirstOrDefault();
+
+                // TODO: Get radar targets and teleport them
+
+                //regular.PressTeleportButtonOnLocalClient();
+            }
+        }*/
 
         public void SetTeleportData(ulong clientId)
         {
