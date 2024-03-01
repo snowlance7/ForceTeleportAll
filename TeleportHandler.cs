@@ -80,7 +80,7 @@ namespace ForceTeleportAll
                 yield return new WaitForSeconds(4.5f);
                 PlayAudioOnPlayerLocal(true);
                 yield return new WaitForSeconds(0.1f);
-                //PlayerToTeleport.TeleportPlayer(_teleportPos);
+                PlayerToTeleport.TeleportPlayer(_teleportPos);
                 //NetworkManagement.shipTeleporterInverse.Value.TeleportPlayerOutServerRpc((int)PlayerToTeleport.playerClientId, _teleportPos); // TODO: Get this working to use the rpc method
                 yield return new WaitForSeconds(0.1f);
                 PlayAudioOnPlayerLocal(true);

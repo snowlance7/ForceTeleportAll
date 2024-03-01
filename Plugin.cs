@@ -7,6 +7,9 @@ using static TerminalApi.TerminalApi;
 using ForceTeleportAll;
 using GameNetcodeStuff;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 
 namespace ForceTeleportAll
@@ -52,7 +55,7 @@ namespace ForceTeleportAll
             configRequireTeleporter = PluginInstance.Config.Bind("Teleporter Settings", "Require Teleporter?", true, "If this is true, a teleporter needs to be bought first before you can use the command.");
             configRequireInverse = PluginInstance.Config.Bind("Teleporter Settings", "Require Inverse Teleporter?", true, "If this is true, an inverse teleporter needs to be bought first before you can use the command.");
             configRespectCooldown = PluginInstance.Config.Bind("Teleporter Settings", "Respect Cooldown?", false, "If left as false, this will run the command even if the teleporters are on cooldown.");
-            configAltMethod = PluginInstance.Config.Bind("Alternate Method", "Use Alt Method?", true, "If this is true, the command will use the alternative method of teleporting players.");
+            configAltMethod = PluginInstance.Config.Bind("Alternate Method", "Use Alt Method?", true, "A common issue im trying to find a solution for is the graphical bugs whenever you teleport everyone inside. This uses a temporary alternate method to teleport everyone inside for now.\nREQUIRES BOTH TELEPORTERS STACKED ON TOP OF EACH OTHER.");
 
             harmony.PatchAll();
 
@@ -77,8 +80,6 @@ namespace ForceTeleportAll
             ShipTeleporter inverse = TeleportHandler.GetTeleporter(selectInverse: true);
             ManualLogSource logger = LoggerInstance;
 
-
-            logger.LogDebug("Got teleporters");
             if (!StartOfRound.Instance.shipHasLanded)
             {
                 logger.LogDebug("Ship isnt landed...");
@@ -86,37 +87,57 @@ namespace ForceTeleportAll
                 return false;
             }
             logger.LogDebug("Pass Ship has landed");
-            if (regular is null && (configRequireTeleporter.Value || configAltMethod.Value))
+            if (regular is null && (NetworkManagement.configRequireTeleporter.Value || NetworkManagement.configAltMethod.Value))
             {
                 logger.LogDebug("No regular teleporter owned");
                 MTResult = "A teleporter is required to use this command...";
                 return false;
             }
             logger.LogDebug($"Pass teleporter check");
-            if (inverse is null && (configRequireInverse.Value || configAltMethod.Value))
+            if (inverse is null && (NetworkManagement.configRequireInverse.Value || NetworkManagement.configAltMethod.Value))
             {
-                
-
                 logger.LogDebug("No inverse teleporter owned");
                 MTResult = "An inverse teleporter is required to use this command...";
                 return false;
             }
-            else if (inverse.cooldownAmount != 0 && configRespectCooldown.Value) // CHECK FOR NULL
+            else if (inverse.cooldownAmount != 0 && NetworkManagement.configRespectCooldown.Value) // CHECK FOR NULL
             {
                 logger.LogDebug("Teleporter on cooldown.");
                 MTResult = $"The Inverse Teleporter is on cooldown. {inverse.cooldownAmount} seconds until this command can be used...";
                 return false;
             }
             logger.LogDebug($"Pass inverse check");
-            if (!StartOfRound.Instance.localPlayerController.isHostPlayerObject && configHostOnly.Value)
+            if (!StartOfRound.Instance.localPlayerController.isHostPlayerObject && NetworkManagement.configHostOnly.Value)
             {
                 logger.LogDebug("The host didnt use the command.");
                 MTResult = "Only the server owner is allowed to run this command...";
                 return false;
             }
+            if (NetworkManagement.configAltMethod.Value)
+            {
+                logger.LogDebug("Using Alt Method...");
+                MTResult = "Using alternative teleport method, make sure teleporters are on top of each other for this to work...";
+                AltMassTeleport();
+                return false;
+            }
 
-            MTResult = $"Attempting to teleport {StartOfRound.Instance.allPlayerScripts.Length - 2} players...";
+            MTResult = $"Attempting to teleport {StartOfRound.Instance.allPlayerScripts.Where(p => p.isPlayerControlled).ToList().Count} players...";
             return true;
+        }
+
+        private void AltMassTeleport()
+        {
+            throw new NotImplementedException();
+
+            if (configAltMethod.Value)                                                                              // TODO TEMP ALT METHOD UNTIL I GET IT WORKING
+            {
+                LoggerInstance.LogDebug($"{FindObjectsOfType<ManualCameraRenderer>().Length} cameras found? TEMP DEBUG");
+                ManualCameraRenderer manualCameraRenderer = FindObjectsOfType<ManualCameraRenderer>().FirstOrDefault();
+
+                // TODO: Get radar targets and teleport them
+
+                //regular.PressTeleportButtonOnLocalClient();
+            }
         }
     }
 }

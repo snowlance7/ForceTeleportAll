@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -77,43 +78,25 @@ namespace ForceTeleportAll
 
         public static void MassTeleport(ulong clientId) // NETWORK send teleport instructions to each player
         {
-            /*if (configAltMethod.Value)                                                                              // TODO TEMP ALT METHOD UNTIL I GET IT WORKING
-            {
-                var players = StartOfRound.Instance.allPlayerScripts;
-                Terminal terminal = new Terminal();
-
-                foreach (var player in players)
-                {
-                    inverse.TeleportPlayerOutServerRpc(player, );
-                }
-
-                //StartOfRound.Instance.mapScreen.radarTargets[0]; // TODO: Get radar targets and teleport them
-
-                //regular.PressTeleportButtonOnLocalClient();
-            }*/
-
-
             int _teleportCount = 0;
-            LoggerInstance.LogDebug("MassTeleport Start");
-            LoggerInstance.LogDebug($"{GameNetworkManager.Instance.localPlayerController} should only get this");
             PlayerControllerB terminalUser = clientId.GetPlayerController();
+            var players = StartOfRound.Instance.allPlayerScripts.Where(p => p.isPlayerControlled).ToList();
             LoggerInstance.LogDebug($"{terminalUser.playerUsername} used the teleportall command");
 
             LoggerInstance.LogDebug("Starting loop");
 
-            for (int j = 0; j < StartOfRound.Instance.allPlayerObjects.Length; j++) // CHANGE THIS
+            foreach (PlayerControllerB player in players) // CHANGE THIS
             {
-                PlayerControllerB _player = StartOfRound.Instance.allPlayerScripts[j];
-                if (!_player.isPlayerControlled) { continue; }
-                LoggerInstance.LogDebug($"Attempting teleport {_player.playerUsername}, steamId: {_player.playerSteamId}");
+                if (!player.isPlayerControlled) { continue; }
+                LoggerInstance.LogDebug($"Attempting teleport {player.playerUsername}, steamId: {player.playerSteamId}");
                 if (RoundManager.Instance.insideAINodes.Length != 0)
                 {
                     LoggerInstance.LogDebug($"insideAINodes = {RoundManager.Instance.insideAINodes.Length}");
-                    if (_player.isHostPlayerObject && !configHostIncluded.Value) { continue; }
+                    if (player.isHostPlayerObject && !configHostIncluded.Value) { continue; }
                     LoggerInstance.LogDebug("Pass host check in for loop");
-                    if (_player.inTerminalMenu && !configUserIncluded.Value) { continue; }
+                    if (player.inTerminalMenu && !configUserIncluded.Value) { continue; }
                     LoggerInstance.LogDebug("Pass userIncluded check in for loop");
-                    serverEvent.InvokeClient(_player.actualClientId); // Invoke RecieveFromServer
+                    serverEvent.InvokeClient(player.actualClientId); // Invoke RecieveFromServer
                     ++_teleportCount;
                     LoggerInstance.LogDebug($"_teleportCount is {_teleportCount}");
                 }
